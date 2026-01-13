@@ -92,16 +92,13 @@ function showToast(message, type = 'info') {
 // ===== Format Date =====
 function formatDate(dateStr) {
     const date = new Date(dateStr);
-    const now = new Date();
-    const diff = now - date;
 
-    if (diff < 60000) return 'Az önce';
-    if (diff < 3600000) return `${Math.floor(diff / 60000)} dk önce`;
-    if (diff < 86400000) return `${Math.floor(diff / 3600000)} saat önce`;
+    // Geçersiz tarih kontrolü
+    if (isNaN(date.getTime())) return '';
 
     return date.toLocaleDateString('tr-TR', {
         day: 'numeric',
-        month: 'short',
+        month: 'long',
         hour: '2-digit',
         minute: '2-digit'
     });

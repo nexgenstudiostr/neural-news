@@ -120,8 +120,8 @@ const newsQueries = {
 
   create: (news) => {
     db.run(`
-      INSERT INTO news (title, summary, content, source, source_url, image_url, category)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO news (title, summary, content, source, source_url, image_url, category, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       news.title,
       news.summary || null,
@@ -129,7 +129,8 @@ const newsQueries = {
       news.source || null,
       news.source_url || null,
       news.image_url || null,
-      news.category || 'genel'
+      news.category || 'genel',
+      news.created_at || new Date().toISOString()
     ]);
     saveDatabase();
 

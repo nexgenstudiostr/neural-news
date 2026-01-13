@@ -18,7 +18,3 @@ services:
         sync: false
       - key: FETCH_INTERVAL_MINUTES
         value: 45
-    disk:
-      name: data
-      mountPath: /opt/render/project/src/db
-      sizeGB: 1

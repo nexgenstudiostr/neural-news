@@ -15,6 +15,46 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Basic Authentication Middleware
+const basicAuth = (req, res, next) => {
+    // Admin kullanıcı adı ve şifresi (.env dosyasından alınır)
+    const user = process.env.ADMIN_USER || 'admin';
+    const pass = process.env.ADMIN_PASSWORD;
+
+    // Şifre ayarlanmamışsa koruma yapma (güvenlik açığı olmaması için uyarı ver)
+    if (!pass) {
+        // console.warn('UYARI: ADMIN_PASSWORD ayarlanmamış!'); 
+        return next();
+    }
+
+    const unathorized = (res) => {
+        res.set('WWW-Authenticate', 'Basic realm="NeuralNews Admin Paneli"');
+        return res.status(401).send('Giriş yapmanız gerekiyor.');
+    };
+
+    const auth = req.headers.authorization;
+    if (!auth) {
+        return unathorized(res);
+    }
+
+    const [scheme, credentials] = auth.split(' ');
+    if (scheme !== 'Basic' || !credentials) {
+        return unathorized(res);
+    }
+
+    const [inputUser, inputPass] = Buffer.from(credentials, 'base64').toString().split(':');
+
+    if (inputUser === user && inputPass === pass) {
+        return next();
+    }
+
+    return unathorized(res);
+};
+
+// Tüm siteyi korumaya al (hem API hem Frontend)
+app.use(basicAuth);
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ============== API ROUTES ==============

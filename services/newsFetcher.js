@@ -39,6 +39,27 @@ async function fetchFromSource(source) {
                 imageUrl = item['media:content'].$.url;
             }
 
+            // Tarihi al (Gelişmiş Parsing)
+            let pubDate;
+            try {
+                // Öncelik sırasına göre tarih alanlarını kontrol et
+                const rawDate = item.isoDate || item.pubDate || item.date || item['dc:date'] || new Date().toISOString();
+
+                // Debug log
+                console.log(`[DATE DEBUG] ${source.name} - "${item.title ? item.title.substring(0, 20) : 'No Title'}..." | Raw: ${rawDate}`);
+
+                pubDate = new Date(rawDate).toISOString();
+
+                // Tarih geçersizse (Invalid Date) şu anı kullan
+                if (pubDate === 'Invalid Date') {
+                    console.log('[DATE WARNING] Invalid Date, fallback to NOW');
+                    pubDate = new Date().toISOString();
+                }
+            } catch (e) {
+                console.error('[DATE ERROR]', e.message);
+                pubDate = new Date().toISOString();
+            }
+
             // Haberi kaydet
             news.create({
                 title: item.title || 'Başlıksız Haber',
@@ -47,7 +68,8 @@ async function fetchFromSource(source) {
                 source: source.name,
                 source_url: item.link,
                 image_url: imageUrl,
-                category: item.categories?.[0] || 'genel'
+                category: item.categories?.[0] || 'genel',
+                created_at: pubDate // Haber yayınlanma tarihini kullan
             });
 
             addedCount++;

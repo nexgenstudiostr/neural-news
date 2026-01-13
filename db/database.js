@@ -166,6 +166,12 @@ const newsQueries = {
     return { changes: db.getRowsModified() };
   },
 
+  deleteAll: () => {
+    db.run('DELETE FROM news');
+    saveDatabase();
+    return { changes: db.getRowsModified() };
+  },
+
   markAsShared: (id) => {
     db.run(`UPDATE news SET is_shared = 1, shared_at = datetime('now') WHERE id = ?`, [id]);
     saveDatabase();

@@ -369,10 +369,29 @@ elements.fetchBtn.addEventListener('click', async () => {
     } catch (error) {
         showToast('Haber çekme başarısız', 'error');
     } finally {
-        elements.fetchBtn.disabled = false;
         elements.fetchBtn.innerHTML = '<span class="btn-icon">🔄</span><span class="btn-text">Güncelle</span>';
     }
 });
+
+// Delete All Button
+const deleteAllBtn = document.getElementById('deleteAllBtn');
+if (deleteAllBtn) {
+    deleteAllBtn.addEventListener('click', async () => {
+        if (!confirm('DİKKAT! Tüm haberler silinecek. Bu işlem geri alınamaz.\n\nEski tarihli haberleri temizlemek için bunu kullanabilirsiniz. Onaylıyor musunuz?')) return;
+
+        try {
+            deleteAllBtn.disabled = true;
+            await api('/api/news/all', { method: 'DELETE' });
+            showToast('Tüm haberler temizlendi', 'success');
+            loadNews();
+            loadStats();
+        } catch (error) {
+            showToast('Temizleme başarısız', 'error');
+        } finally {
+            deleteAllBtn.disabled = false;
+        }
+    });
+}
 
 // Add Source Button
 elements.addSourceBtn.addEventListener('click', () => {

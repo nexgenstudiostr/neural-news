@@ -99,6 +99,17 @@ app.get('/api/news/:id', (req, res) => {
     }
 });
 
+// Tüm haberleri sil (Sıfırlama)
+app.delete('/api/news/all', (req, res) => {
+    try {
+        news.deleteAll();
+        console.log('🗑️ Tüm haberler kullanıcı isteğiyle silindi');
+        res.json({ success: true, message: 'Tüm haberler temizlendi' });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
 // Yeni haber ekle
 app.post('/api/news', (req, res) => {
     try {

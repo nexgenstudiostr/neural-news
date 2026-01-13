@@ -39,8 +39,19 @@ async function fetchFromSource(source) {
                 imageUrl = item['media:content'].$.url;
             }
 
-            // Tarihi al
-            const pubDate = item.isoDate || item.pubDate ? new Date(item.isoDate || item.pubDate).toISOString() : new Date().toISOString();
+            // Tarihi al (Gelişmiş Parsing)
+            let pubDate;
+            try {
+                const rawDate = item.isoDate || item.pubDate || item.date || item['dc:date'] || new Date().toISOString();
+                pubDate = new Date(rawDate).toISOString();
+
+                // Tarih geçersizse (Invalid Date) şu anı kullan
+                if (pubDate === 'Invalid Date') {
+                    pubDate = new Date().toISOString();
+                }
+            } catch (e) {
+                pubDate = new Date().toISOString();
+            }
 
             // Haberi kaydet
             news.create({

@@ -19,8 +19,14 @@
     <!-- Header -->
     <header class="header">
       <div class="header-content">
-        <h1 class="logo">🧠 NeuralNews</h1>
+        <div class="logo-container">
+          <img src="/logo.jpg" alt="NeuralNews Logo" class="logo-img">
+          <h1 class="logo-text">NeuralNews</h1>
+        </div>
         <div class="header-actions">
+          <button id="deleteAllBtn" class="btn btn-danger btn-sm" style="margin-right: 5px;" title="Tüm haberleri temizle">
+            <span class="btn-icon">🗑️</span>
+          </button>
           <button id="fetchBtn" class="btn btn-primary btn-sm">
             <span class="btn-icon">🔄</span>
             <span class="btn-text">Güncelle</span>

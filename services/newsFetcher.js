@@ -39,22 +39,32 @@ async function fetchFromSource(source) {
                 imageUrl = item['media:content'].$.url;
             }
 
-            // Tarihi al (Gelişmiş Parsing)
+            // Tarihi al (Gelişmiş Parsing ve Saat Dilimi Düzeltme)
             let pubDate;
             try {
-                // Öncelik sırasına göre tarih alanlarını kontrol et
-                const rawDate = item.isoDate || item.pubDate || item.date || item['dc:date'] || new Date().toISOString();
+                let rawDate = item.isoDate || item.pubDate || item.date || item['dc:date'];
 
-                // Debug log
-                console.log(`[DATE DEBUG] ${source.name} - "${item.title ? item.title.substring(0, 20) : 'No Title'}..." | Raw: ${rawDate}`);
-
-                pubDate = new Date(rawDate).toISOString();
-
-                // Tarih geçersizse (Invalid Date) şu anı kullan
-                if (pubDate === 'Invalid Date') {
-                    console.log('[DATE WARNING] Invalid Date, fallback to NOW');
+                if (!rawDate) {
                     pubDate = new Date().toISOString();
+                } else {
+                    // Bazı Türk siteleri (ShiftDelete, Webtekno vb.) 
+                    // RSS'de saati yerel verir ama sonuna +0300 eklemez.
+                    // Eğer tarih string'inde + veya Z yoksa, sonuna +03:00 ekleyelim.
+                    let dateStr = String(rawDate).trim();
+                    if (!dateStr.includes('+') && !dateStr.includes('Z') && !/GMT|UTC/i.test(dateStr)) {
+                        dateStr += ' +0300';
+                    }
+
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) {
+                        console.log(`[DATE WARNING] Geçersiz tarih formatı: ${rawDate}`);
+                        pubDate = new Date().toISOString();
+                    } else {
+                        pubDate = d.toISOString();
+                    }
                 }
+
+                console.log(`[DATE DEBUG] ${source.name} | Orijinal: ${rawDate} | Kaydedilen (UTC): ${pubDate}`);
             } catch (e) {
                 console.error('[DATE ERROR]', e.message);
                 pubDate = new Date().toISOString();

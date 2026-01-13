@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>NeuralNews Paneli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-content">
+        <div class="logo-container">
+          <img src="/logo.jpg" alt="NeuralNews Logo" class="logo-img">
+          <h1 class="logo-text">NeuralNews</h1>
+        </div>
+        <div class="header-actions">
+          <button id="fetchBtn" class="btn btn-primary btn-sm">
+            <span class="btn-icon">🔄</span>
+            <span class="btn-text">Güncelle</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-item">
+        <span class="stat-value" id="totalNews">-</span>
+        <span class="stat-label">Toplam</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="todayNews">-</span>
+        <span class="stat-label">Bugün</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="sharedNews">-</span>
+        <span class="stat-label">Paylaşılan</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value" id="sourcesCount">-</span>
+        <span class="stat-label">Kaynak</span>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <nav class="tabs">
+      <button class="tab active" data-tab="news">Haberler</button>
+      <button class="tab" data-tab="sources">Kaynaklar</button>
+    </nav>
+
+    <!-- Search & Filter -->
+    <div class="search-bar" id="newsSearchBar">
+      <input type="text" id="searchInput" placeholder="Haber ara..." class="search-input">
+      <select id="filterSource" class="filter-select">
+        <option value="">Tüm Kaynaklar</option>
+      </select>
+      <select id="filterShared" class="filter-select">
+        <option value="">Tümü</option>
+        <option value="false">Paylaşılmamış</option>
+        <option value="true">Paylaşılmış</option>
+      </select>
+    </div>
+
+    <!-- News List -->
+    <main class="content" id="newsTab">
+      <div class="news-list" id="newsList">
+        <div class="loading">Yükleniyor...</div>
+      </div>
+    </main>
+
+    <!-- Sources Tab -->
+    <main class="content hidden" id="sourcesTab">
+      <button class="btn btn-primary btn-block" id="addSourceBtn">
+        <span class="btn-icon">➕</span> Yeni Kaynak Ekle
+      </button>
+      <div class="sources-list" id="sourcesList">
+        <div class="loading">Yükleniyor...</div>
+      </div>
+    </main>
+
+    <!-- News Modal -->
+    <div class="modal" id="newsModal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title">Haber Düzenle</h2>
+          <button class="modal-close" id="closeNewsModal">&times;</button>
+        </div>
+        <form id="newsForm" class="modal-body">
+          <input type="hidden" id="newsId">
+
+          <div class="form-group">
+            <label for="newsTitle">Başlık</label>
+            <input type="text" id="newsTitle" required class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="newsSummary">Özet</label>
+            <textarea id="newsSummary" rows="3" class="form-input"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="newsCategory">Kategori</label>
+            <input type="text" id="newsCategory" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label>Kaynak</label>
+            <input type="text" id="newsSource" readonly class="form-input form-input-readonly">
+          </div>
+
+          <div class="form-group">
+            <label>Tweet Önizleme</label>
+            <div class="tweet-preview" id="tweetPreview"></div>
+            <span class="char-count" id="charCount">0/280</span>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-danger" id="deleteNewsBtn">
+              🗑️ Sil
+            </button>
+            <button type="button" class="btn btn-twitter" id="shareNewsBtn">
+              𝕏 Paylaş
+            </button>
+            <button type="submit" class="btn btn-primary">
+              💾 Kaydet
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Source Modal -->
+    <div class="modal" id="sourceModal">
+      <div class="modal-overlay"></div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2 class="modal-title" id="sourceModalTitle">Kaynak Ekle</h2>
+          <button class="modal-close" id="closeSourceModal">&times;</button>
+        </div>
+        <form id="sourceForm" class="modal-body">
+          <input type="hidden" id="sourceId">
+
+          <div class="form-group">
+            <label for="sourceName">Kaynak Adı</label>
+            <input type="text" id="sourceName" required class="form-input" placeholder="örn: NTV">
+          </div>
+
+          <div class="form-group">
+            <label for="sourceUrl">RSS URL</label>
+            <input type="url" id="sourceUrl" required class="form-input" placeholder="https://...">
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" id="sourceActive" checked>
+              <span>Aktif</span>
+            </label>
+          </div>
+
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" id="cancelSourceBtn">İptal</button>
+            <button type="submit" class="btn btn-primary">Kaydet</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+
+</html>

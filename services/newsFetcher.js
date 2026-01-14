@@ -55,23 +55,14 @@ async function fetchFromSource(source) {
                     // Bu durumda manuel olarak Türkiye saat dilimini (+0300) ekliyoruz.
                     if (!dateStr.includes('+') && !dateStr.includes('Z') && !/GMT|UTC/i.test(dateStr)) {
                         dateStr += ' +0300';
-                    }const d = new Date(dateStr);
+                    }
 
-if (isNaN(d.getTime())) {
-  console.log(`[DATE WARNING] Geçersiz tarih formatı: ${rawDate}`);
-
-  // Türkiye saati ile şimdiki zaman
-  pubDate = new Date().toLocaleString("sv-SE", {
-    timeZone: "Europe/Istanbul"
-  }).replace(" ", "T") + ".000Z";
-
-} else {
-  // Tarihi Türkiye saatine çevir
-  pubDate = new Date(
-    d.toLocaleString("en-US", { timeZone: "Europe/Istanbul" })
-  ).toISOString();
-}
-
+                    const d = new Date(dateStr);
+                    if (isNaN(d.getTime())) {
+                        console.log(`[DATE WARNING] Geçersiz tarih formatı: ${rawDate}`);
+                        pubDate = new Date().toISOString();
+                    } else {
+                        pubDate = d.toISOString();
                     }
                 }
 

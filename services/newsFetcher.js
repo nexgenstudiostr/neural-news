@@ -62,6 +62,7 @@ async function fetchFromSource(source) {
                         console.log(`[DATE WARNING] Geçersiz tarih formatı: ${rawDate}`);
                         pubDate = new Date().toISOString();
                     } else {
+                        // UTC'ye çevirip kaydedelim (database.js ve frontend +3 ekleyerek yönetiyor)
                         pubDate = d.toISOString();
                     }
                 }

@@ -32,8 +32,9 @@ async function initializeDatabase() {
       category TEXT DEFAULT 'genel',
       is_shared INTEGER DEFAULT 0,
       shared_at TEXT,
-      created_at TEXT DEFAULT (datetime('now')),
-      updated_at TEXT DEFAULT (datetime('now'))
+      created_at TEXT DEFAULT (datetime('now', '+3 hours')),
+      fetched_at TEXT DEFAULT (datetime('now', '+3 hours')),
+      updated_at TEXT DEFAULT (datetime('now', '+3 hours'))
     )
   `);
 
@@ -120,8 +121,8 @@ const newsQueries = {
 
   create: (news) => {
     db.run(`
-      INSERT INTO news (title, summary, content, source, source_url, image_url, category, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO news (title, summary, content, source, source_url, image_url, category, created_at, fetched_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `, [
       news.title,
       news.summary || null,
@@ -130,7 +131,8 @@ const newsQueries = {
       news.source_url || null,
       news.image_url || null,
       news.category || 'genel',
-      news.created_at || new Date().toISOString()
+      news.created_at || new Date().toISOString(),
+      new Date().toISOString()
     ]);
     saveDatabase();
 

@@ -99,32 +99,32 @@ async function fetchFromSource(source) {
  * Tüm aktif kaynaklardan haberleri çeker
  */
 async function fetchAllNews() {
-    console.log('\n🔄 Tüm kaynaklardan haberler çekiliyor...');
-    console.log('⏰ Zaman:', new Date().toLocaleString('tr-TR'));
+    try {
+        console.log('\n🔄 Tüm kaynaklardan haberler çekiliyor...');
 
-    const activeSources = sources.getActive();
+        // Veritabanı bağlantı fonksiyonunu al (gerekirse)
+        const activeSources = sources.getActive ? sources.getActive() : sources.getAll();
 
-    if (activeSources.length === 0) {
-        console.log('⚠️ Aktif haber kaynağı bulunamadı. Lütfen kaynak ekleyin.');
-        return { total: 0, sources: 0 };
+        if (!activeSources || activeSources.length === 0) {
+            console.log('⚠️ Aktif haber kaynağı bulunamadı.');
+            return 0;
+        }
+
+        let totalAdded = 0;
+        for (const source of activeSources) {
+            const added = await fetchFromSource(source);
+            totalAdded += added;
+
+            // Kaynaklar arası kısa bekleme (opsiyonel)
+            await new Promise(resolve => setTimeout(resolve, 500));
+        }
+
+        console.log(`\n📊 Toplam: ${totalAdded} yeni haber, ${activeSources.length} kaynaktan çekildi\n`);
+        return totalAdded;
+    } catch (error) {
+        console.error('❌ Haber çekme işlemi sırasında kritik hata:', error);
+        return 0;
     }
-
-    let totalAdded = 0;
-
-    for (const source of activeSources) {
-        const added = await fetchFromSource(source);
-        totalAdded += added;
-
-        // Rate limiting - kaynaklar arası 1 saniye bekle
-        await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-
-    console.log(`\n📊 Toplam: ${totalAdded} yeni haber, ${activeSources.length} kaynaktan çekildi\n`);
-
-    return {
-        total: totalAdded,
-        sources: activeSources.length
-    };
 }
 
 /**

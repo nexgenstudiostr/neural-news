@@ -42,15 +42,17 @@ async function fetchFromSource(source) {
             // Tarihi al (Gelişmiş Parsing ve Saat Dilimi Düzeltme)
             let pubDate;
             try {
-                let rawDate = item.isoDate || item.pubDate || item.date || item['dc:date'];
+                // Önceliği orijinal pubDate'e veriyoruz, çünkü isoDate parser tarafından yanlış yorumlanmış olabilir.
+                let rawDate = item.pubDate || item.isoDate || item.date || item['dc:date'];
 
                 if (!rawDate) {
                     pubDate = new Date().toISOString();
                 } else {
-                    // Bazı Türk siteleri (ShiftDelete, Webtekno vb.) 
-                    // RSS'de saati yerel verir ama sonuna +0300 eklemez.
-                    // Eğer tarih string'inde + veya Z yoksa, sonuna +03:00 ekleyelim.
                     let dateStr = String(rawDate).trim();
+
+                    // Eğer tarih string'inde saat dilimi (+0300, Z, GMT vb.) belirtilmemişse 
+                    // Render sunucusu bunu UTC sanıp üzerine +3 ekliyor (01:00 olması bu yüzden).
+                    // Bu durumda manuel olarak Türkiye saat dilimini (+0300) ekliyoruz.
                     if (!dateStr.includes('+') && !dateStr.includes('Z') && !/GMT|UTC/i.test(dateStr)) {
                         dateStr += ' +0300';
                     }

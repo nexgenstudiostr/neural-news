@@ -51,25 +51,20 @@ async function fetchFromSource(source) {
                     let dateStr = String(rawDate).trim();
 
                     // Eğer tarih string'inde saat dilimi (+0300, Z, GMT vb.) belirtilmemişse 
-                    // Render sunucusu bunu UTC sanıp üzerine +3 ekliyor (01:00 olması bu yüzden).
-                    // Bu durumda manuel olarak Türkiye saat dilimini (+0300) ekliyoruz.
+                    // Türk siteleri için varsayılan olarak Türkiye saat dilimini (+0300) ekliyoruz.
                     if (!dateStr.includes('+') && !dateStr.includes('Z') && !/GMT|UTC/i.test(dateStr)) {
                         dateStr += ' +0300';
                     }
 
                     const d = new Date(dateStr);
                     if (isNaN(d.getTime())) {
-                        console.log(`[DATE WARNING] Geçersiz tarih formatı: ${rawDate}`);
                         pubDate = new Date().toISOString();
                     } else {
-                        // UTC'ye çevirip kaydedelim (database.js ve frontend +3 ekleyerek yönetiyor)
+                        // Veritabanına her zaman standart UTC ISO string kaydediyoruz.
                         pubDate = d.toISOString();
                     }
                 }
-
-                console.log(`[DATE DEBUG] ${source.name} | Orijinal: ${rawDate} | Kaydedilen (UTC): ${pubDate}`);
             } catch (e) {
-                console.error('[DATE ERROR]', e.message);
                 pubDate = new Date().toISOString();
             }
 

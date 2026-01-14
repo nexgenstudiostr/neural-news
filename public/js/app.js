@@ -96,12 +96,15 @@ function formatDate(dateStr) {
     // Geçersiz tarih kontrolü
     if (isNaN(date.getTime())) return '';
 
-    return date.toLocaleDateString('tr-TR', {
+    // Her zaman Türkiye saat dilimine (Europe/Istanbul) göre formatla
+    return new Intl.DateTimeFormat('tr-TR', {
         day: 'numeric',
         month: 'long',
+        year: 'numeric',
         hour: '2-digit',
-        minute: '2-digit'
-    });
+        minute: '2-digit',
+        timeZone: 'Europe/Istanbul'
+    }).format(date);
 }
 
 // ===== Load Stats =====
